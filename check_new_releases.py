@@ -1,6 +1,22 @@
 from datetime import datetime, timezone, timedelta
 import config
 from auth_setup import get_spotify_client  # <-- import the Spotify client
+from datetime import datetime, timezone
+
+def parse_spotify_date(date_str, precision):
+    """Convert Spotify release_date to UTC-aware datetime"""
+    if precision == 'year':
+        dt = datetime(int(date_str), 1, 1)
+    elif precision == 'month':
+        year, month = map(int, date_str.split('-'))
+        dt = datetime(year, month, 1)
+    else:  # 'day'
+        dt = datetime.fromisoformat(date_str)
+
+    # Make timezone-aware
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=timezone.utc)
+    return dt
 
 def load_artist_ids():
     try:
@@ -37,9 +53,16 @@ def check_new_releases():
             for album in albums['items']:
                 if album['id'] in processed_albums:
                     continue
-                release_date = datetime.fromisoformat(album['release_date'].replace('Z', '+00:00'))
+                release_date = parse_spotify_date(
+                    album['release_date'],
+                    album.get('release_date_precision', 'day')
+                )
                 if release_date >= threshold:
-                    for track in sp.album_tracks(album['id'])['items']:
+                    tracks = sp.album_tracks(album['id'])['items']
+                    for track in tracks:
+                        track_name = track['name']
+                        artists = ', '.join(a['name'] for a in track['artists'])
+                        print(f"🎵 Found new track: {track_name} — {artists}")
                         new_tracks.append(track['uri'])
                     save_processed_album(album['id'])
         except Exception as e:
