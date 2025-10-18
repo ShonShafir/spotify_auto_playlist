@@ -1,23 +1,6 @@
-import os
-import spotipy
-from spotipy.oauth2 import SpotifyOAuth
 from datetime import datetime, timezone, timedelta
 import config
-
-def get_spotify_client():
-    sp_oauth = SpotifyOAuth(
-        client_id=os.environ["SPOTIFY_CLIENT_ID"],
-        client_secret=os.environ["SPOTIFY_CLIENT_SECRET"],
-        redirect_uri="http://127.0.0.1:8888/callback",
-        scope="playlist-modify-public playlist-modify-private",
-        cache_path=".spotify_cache",
-        show_dialog=False
-    )
-
-    # Use refresh token from GitHub secrets
-    token_info = sp_oauth.refresh_access_token(os.environ["SPOTIFY_REFRESH_TOKEN"])
-    sp = spotipy.Spotify(auth=token_info['access_token'])
-    return sp
+from auth_setup import get_spotify_client  # <-- import the Spotify client
 
 def load_artist_ids():
     try:
@@ -39,7 +22,7 @@ def save_processed_album(album_id):
         f.write(f"{album_id}\n")
 
 def check_new_releases():
-    sp = get_spotify_client()
+    sp = get_spotify_client()  # <-- use the auth_setup client
     artist_ids = load_artist_ids()
     if not artist_ids:
         return
