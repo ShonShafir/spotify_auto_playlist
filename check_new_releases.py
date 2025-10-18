@@ -1,5 +1,5 @@
 from datetime import datetime, timezone, timedelta
-import config
+import config, time
 from auth_setup import get_spotify_client  # <-- import the Spotify client
 from datetime import datetime, timezone
 
@@ -50,6 +50,7 @@ def check_new_releases():
     for artist_id in artist_ids:
         try:
             albums = sp.artist_albums(artist_id, album_type='album,single', limit=10)
+            time.sleep(0.3)
             for album in albums['items']:
                 if album['id'] in processed_albums:
                     continue
