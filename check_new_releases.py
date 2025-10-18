@@ -69,6 +69,3 @@ def check_new_releases():
         print(f"Added {len(new_tracks)} new tracks to playlist!")
     else:
         print("No new tracks found.")
-
-if __name__ == "__main__":
-    check_new_releases()
