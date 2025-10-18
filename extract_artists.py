@@ -1,6 +1,7 @@
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
 import config
+import os
 
 def extract_playlist_id(url):
     if 'playlist/' in url:
