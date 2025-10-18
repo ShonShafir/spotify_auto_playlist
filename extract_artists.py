@@ -3,6 +3,7 @@ from spotipy.oauth2 import SpotifyClientCredentials
 import config
 import warnings
 warnings.filterwarnings('ignore')
+import os
 
 def extract_playlist_id(url):
     """Extract playlist ID from Spotify URL"""
@@ -26,8 +27,8 @@ def get_all_tracks_from_playlist(sp, playlist_id):
 def extract_artist_ids():
     """Extract all unique artist IDs from configured playlists"""
     client_credentials_manager = SpotifyClientCredentials(
-        client_id=config.SPOTIFY_CLIENT_ID,
-        client_secret=config.SPOTIFY_CLIENT_SECRET
+        client_id=os.environ.get("SPOTIFY_CLIENT_ID"),
+        client_secret=os.environ.get("SPOTIFY_CLIENT_SECRET")
     )
     sp = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
     
