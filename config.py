@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 load_dotenv()
 SPOTIFY_CLIENT_ID = os.getenv('SPOTIFY_CLIENT_ID')
 SPOTIFY_CLIENT_SECRET = os.getenv('SPOTIFY_CLIENT_SECRET')
-SPOTIFY_REDIRECT_URI = os.getenv('SPOTIFY_REDIRECT_URI', 'http://localhost:8888/callback')
+SPOTIFY_REDIRECT_URI = os.getenv('http://localhost:8888/callback')
 PLAYLIST_URLS = [
     'https://open.spotify.com/playlist/47dNMRY60zT6RdqsIxjhLa',
     'https://open.spotify.com/playlist/0G1Vsob3SIc9nTGj12hxfo'
