@@ -6,7 +6,7 @@ PLAYLIST_URLS = [
     'https://open.spotify.com/playlist/0G1Vsob3SIc9nTGj12hxfo'
 ]
 
-TARGET_PLAYLIST_ID = '47dNMRY60zT6RdqsIxjhLa'
+TARGET_PLAYLIST_ID = '2Z5YAQGFSWgtuWo0LlbCGF'
 
 ARTISTS_FILE = 'artists_id.txt'
 PROCESSED_ALBUMS_FILE = 'processed_albums.txt'
