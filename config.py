@@ -10,7 +10,7 @@ PLAYLIST_URLS = [
 TARGET_PLAYLIST_ID = '2Z5YAQGFSWgtuWo0LlbCGF'
 
 ARTISTS_FILE = 'artists_id.txt'
-PROCESSED_ALBUMS_FILE = 'processed_albums.txt'
+ADDED_TRACKS_FILE = 'added_tracks.txt'
 
 DAYS_THRESHOLD = 1  # Use 0.5 if you want "12 hours" check locally
 
