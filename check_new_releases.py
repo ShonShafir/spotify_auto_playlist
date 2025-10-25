@@ -4,6 +4,7 @@ from datetime import datetime, timezone, timedelta
 from spotipy.exceptions import SpotifyException
 import config
 from auth_setup import get_spotify_client, get_spotify_manager
+from discord_notifier import send_discord_notification
 
 logging.basicConfig(
     level=logging.INFO,
@@ -152,6 +153,7 @@ def check_new_releases(batch_size=20, delay_between_batches=30, delay_between_ar
     
     new_tracks = []
     new_track_ids = []
+    tracks_info = []
     total_artists = len(artist_ids)
     
     log.info(f"🎧 Checking {total_artists} artists in batches of {batch_size}...")
@@ -200,6 +202,14 @@ def check_new_releases(batch_size=20, delay_between_batches=30, delay_between_ar
                                     new_tracks.append(track['uri'])
                                     new_track_ids.append(track_id)
 
+                                    tracks_info.append({
+                                        'name': track_name,
+                                        'artists': artists_str,
+                                        'release_date': release_date_str,
+                                        'uri': track['uri'],
+                                        'days_old': days_diff
+                                    })
+
                 time.sleep(delay_between_artists)
                 
             except Exception as e:
@@ -224,6 +234,8 @@ def check_new_releases(batch_size=20, delay_between_batches=30, delay_between_ar
             save_added_track_id(track_id)
         
         log.info(f"✅ Successfully added {len(new_tracks)} new tracks to playlist!")
+
+        send_discord_notification(tracks_info)
     else:
         log.info("\n✨ No new tracks found from yesterday or today.")
     
