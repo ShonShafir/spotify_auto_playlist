@@ -49,24 +49,74 @@ def load_artist_ids():
         return []
 
 def load_added_track_ids():
-    """Load previously added track IDs to prevent duplicates."""
+    """Load previously added track IDs from both today and yesterday files to prevent duplicates."""
+    track_ids = set()
+    
+    # Load today's releases
     try:
-        with open(config.ADDED_TRACKS_FILE, 'r') as f:
-            return set(line.strip() for line in f if line.strip())
+        with open('today_releases.txt', 'r') as f:
+            today_tracks = set(line.strip() for line in f if line.strip())
+            track_ids.update(today_tracks)
+            log.info(f"📝 Loaded {len(today_tracks)} track IDs from today_releases.txt")
     except FileNotFoundError:
-        return set()
+        log.info(f"📝 today_releases.txt not found (first run or empty)")
+    
+    # Load yesterday's releases
+    try:
+        with open('yesterday_releases.txt', 'r') as f:
+            yesterday_tracks = set(line.strip() for line in f if line.strip())
+            track_ids.update(yesterday_tracks)
+            log.info(f"📝 Loaded {len(yesterday_tracks)} track IDs from yesterday_releases.txt")
+    except FileNotFoundError:
+        log.info(f"📝 yesterday_releases.txt not found (first run or empty)")
+    
+    return track_ids
 
 def save_added_track_id(track_id):
-    """Save a track ID to the tracking file."""
-    with open(config.ADDED_TRACKS_FILE, 'a') as f:
+    """Save a track ID to today's tracking file."""
+    with open('today_releases.txt', 'a') as f:
         f.write(f"{track_id}\n")
+
+def rotate_tracking_files():
+    """
+    Rotate tracking files at the end of the run:
+    - Move today_releases.txt content to yesterday_releases.txt
+    - Clear today_releases.txt for the next run
+    """
+    log.info("\n🔄 Rotating tracking files...")
+    
+    # Read today's releases
+    try:
+        with open('today_releases.txt', 'r') as f:
+            today_content = f.read()
+        
+        # Write to yesterday's file (overwrite)
+        with open('yesterday_releases.txt', 'w') as f:
+            f.write(today_content)
+        
+        # Count tracks for logging
+        track_count = len([line for line in today_content.split('\n') if line.strip()])
+        log.info(f"✅ Moved {track_count} track IDs from today → yesterday")
+        
+        # Clear today's file
+        with open('today_releases.txt', 'w') as f:
+            f.write('')
+        log.info(f"✅ Cleared today_releases.txt for next run")
+        
+    except FileNotFoundError:
+        log.info("📝 No today_releases.txt to rotate (creating empty files)")
+        # Create both files as empty if they don't exist
+        with open('today_releases.txt', 'w') as f:
+            f.write('')
+        with open('yesterday_releases.txt', 'w') as f:
+            f.write('')
 
 # === Main logic ===
 def check_new_releases(batch_size=20, delay_between_batches=30, delay_between_artists=1.5, max_artists=None):
     """
     Check for new releases from artists and add them to playlist.
     Tracks releases from yesterday and today only (0-1 day difference).
-    Prevents duplicate additions by tracking individual track IDs.
+    Prevents duplicate additions by tracking individual track IDs using a rolling 2-day window.
     
     Optimized for GitHub Actions (6-hour limit) with conservative rate limiting.
     Processes all artists (~3,300) in approximately 3-4 hours safely.
@@ -98,7 +148,7 @@ def check_new_releases(batch_size=20, delay_between_batches=30, delay_between_ar
     log.info(f"📅 Checking for releases from: {yesterday_start.strftime('%Y-%m-%d')} to {now.strftime('%Y-%m-%d %H:%M:%S')}")
     
     added_track_ids = load_added_track_ids()
-    log.info(f"📝 Loaded {len(added_track_ids)} previously added track IDs")
+    log.info(f"📝 Total unique track IDs from last 2 days: {len(added_track_ids)}")
     
     new_tracks = []
     new_track_ids = []
@@ -176,3 +226,6 @@ def check_new_releases(batch_size=20, delay_between_batches=30, delay_between_ar
         log.info(f"✅ Successfully added {len(new_tracks)} new tracks to playlist!")
     else:
         log.info("\n✨ No new tracks found from yesterday or today.")
+    
+    # Rotate tracking files at the end of the run
+    rotate_tracking_files()
