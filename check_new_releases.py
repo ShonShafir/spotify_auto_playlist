@@ -235,7 +235,7 @@ def check_new_releases(batch_size=20, delay_between_batches=30, delay_between_ar
         
         log.info(f"✅ Successfully added {len(new_tracks)} new tracks to playlist!")
 
-        send_discord_notification(tracks_info)
+        # send_discord_notification(tracks_info)
     else:
         log.info("\n✨ No new tracks found from yesterday or today.")
     
