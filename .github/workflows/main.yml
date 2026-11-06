@@ -2,7 +2,7 @@ name: Daily Spotify Automation
 
 on:
   schedule:
-    - cron: "37 11 * * *"  # 11:00 UTC daily
+    - cron: "37 11 * * *"  # 11:37 UTC daily
   workflow_dispatch:
 
 permissions:
